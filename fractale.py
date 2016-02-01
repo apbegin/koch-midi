@@ -53,6 +53,7 @@ def musique(A,B,niveau,niveauMax):
         time = B-A
         h = A
     elif niveau < niveauMax:
+        return 0
         
 
 
