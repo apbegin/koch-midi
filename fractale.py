@@ -2,61 +2,77 @@ from math import trunc
 __author__ = 'JJ'
 
 
-#Fonction MAIN
-#On appel la fonction musique pour cr�er le tableau
-#on cr�e un buffer
-#On loop dans le tableau cr�� par musique pour pack les notes dans le buffer
-#On read le file
+import math
 
-if __name__ == '__main__':
-    
-    A = 0x24
-    B = 0x54
-    h = getH(0)
-
-
-
-
+def _dist(p1, p2):
 #Fonction _distX(x, y)
 # qui calcul la distance horizontale entre deux points de
-#   coordon�es (x,y)
+#   coordonees (x,y)
 #RETOURNE un nombre
+    dist_x_squared = math.pow((p2[0]-p1[0]), 2) #dist entre x de p2 et p1
+    dist_y_squared = math.pow((p2[1]-p1[1]), 2) #dist entre y de p2 et p1
 
-    
+    return math.sqrt(dist_x_squared + dist_y_squared)
+
+def _fraction_distance(p1, p2, fraction):
+    #Fonction qui retourne les coordonnees d'un point se trouvant a une
+    #certaine fraction de la distance entre deux points
+    vect_points = [p2[0]-p1[0], p2[1]-p1[1]]   #Vecteur de distantce entre p1 et p2
+    new_point = [p1[0] + fraction*vect_points[0],
+                 p1[1] + fraction*vect_points[1]]   #Nouveau point = p1 + fraction distance p2-1
+    return new_point
+
+
+def trunc(n):
+#fonction  h =trunc( 48/2n ) est utilisee pour calculer h de la recursion
+# n est le niveau de recursion de la fonction musique
+#RETOURNE un array de longueur 2
+    hauteur = 48/(math.pow(2, n))
+    hauteur = math.floor(hauteur)
+    return hauteur
+
+def _genere_points(p1, p2, n):
+    #fonction qui prend deux points et retourne 4 points selon de sorte
+    #a faire un fractal de koch [p1--p3--p4--p5--p2} OU [A--C--D--E--B}
+    p3 = _fraction_distance(p1, p2, 1/4)    #point C (ou p3) est sur la la droite AB
+    p4 = _fraction_distance(p1, p2, 2/4)    #point D (ou p5) est sur la la droite AB
+    p4[1] = trunc(n)                        #ajuste la hauteur de D selon trunct
+    p5 = _fraction_distance(p1, p2, 3/4)    #point E (ou p5) est sur la la droite AB
+    return [p1, p3, p4, p5, p2]
+
+def musique(A, B, niveau, niveauMax):
+    n = niveau
+    init = 0
+    next_points = _genere_points(A, B, n)
+    if niveau == niveauMax:
+        return [A[1], (_dist(A, B))] #on retourne la hauteur de A et la dist AB
+    else:
+        n += 1
+        return [] + musique(next_points[0], next_points[1], n, niveauMax)+\
+               musique(next_points[1], next_points[2], n, niveauMax) +\
+               musique(next_points[2], next_points[3], n, niveauMax) +\
+               musique(next_points[3], next_points[4], n, niveauMax)
+
+
+a = [0, 0]
+b = [8, 0]
+
+print(_dist(a, b))
+print(_fraction_distance(a, b, (1/4)))
+print(_genere_points(a, b, 0))
+
+
+d = musique(a, b, 0, 1)
+print(d)
+
+#Fonction MAIN
+#On appel la fonction musique pour creer le tableau
+#on cree un buffer
+#On loop dans le tableau cree par musique pour pack les notes dans le buffer
+#On read le file
         
-        
 
-
-#fonction  h =trunc( 48/2n ) est utilis�e pour calculer h de la r�cursion
-# n est le niveau de r�cursion de la fonction musique
-#RETOURNE un entier
-
-def getH(n):
-    
-    h = trunc(48/2**n)
-    
-    return h
-
-#Fonction musique()
-#qui agit comme suit. Si niveauMax == niveau, alors la fonction �met une note dont la
-#dur�e est la distance entre A et B sur l�axe horizontal. La hauteur de ce son est celle du
-#point A. La dur�e de cette note correspond � la longueur du segment (A,B) sur l�axe
-#horizontal. Si niveau < niveauMax, alors la fonction trouve la position des points C, D
-#et E et s�invoque r�cursivent sur les segments (A,D), (D,C), (C,E) et (E,B).
-    #ACCORDING to le schema et la d�finition d'une forme de koch, le point C
-    #est toujours au MILIEU du segment
-    #RETOURNE un tableau de notes (note + longueur)
-    #A et B commencent a une hauteur de 48, soit Middle-C ou x3C en hexa
-    
-def musique(A,B,niveau,niveauMax):
-    if niveauMax == niveau:
-        time = B-A
-        h = A
-    elif niveau < niveauMax:
-        return 0
-        
-
-
+"""
 #Ecriture du hearder dans le fichier midi
 def writeHeader():
 
@@ -75,3 +91,4 @@ def writeHeader():
     
     f.write(midiHeader)
     f.close()
+"""
