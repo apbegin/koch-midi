@@ -1,5 +1,6 @@
 from math import trunc
 from _ast import List
+import struct
 __author__ = 'JJ'
 
 
@@ -57,58 +58,48 @@ def musique(A, B, niveau, niveauMax):
 a = [0, 0]
 b = [77760, 0]
 
-print(_dist(a, b))
-print(_fraction_distance(a, b, (1/4)))
-print(_genere_points(a, b, 0))
-
-
 koch_values = musique(a, b, 0, 5)
 
 lst_note = []
 
-channel = 90
-volume = 60
+channel = 0x90
+volume = 0x60
 
 
-lst_note.append([0,channel,0,volume])
+lst_note.append([0x00,channel,0x00,volume])
 
 dist_index = trunc(len(koch_values)/2)
 for x in range(dist_index-1):
     lst_note.append([koch_values[2*x+1],channel,koch_values[2*x],volume])
 
-
-print(koch_values)
-print(lst_note)
-
 #Section G du track header :
 #nb de note x 4 pour le nombre de byte + 4 byte de la section F 
 track_length = len(lst_note)*4 + 4
 
-midiHeader ="4d 54 68 64 00 00 00 06 00 01 00 02 00 80 4d 54 72 6b " + str(track_length)
-print(midiHeader)
-midiHeader = bytes.fromhex(midiHeader)
-
-
+midiHeader =[0x4d, 0x54,0x68, 0x64 ,0x00, 0x00, 0x00,0x06, 0x00,
+            0x00, 0x00, 0x01, 0x00, 0x80, 0x4d, 0x54, 0x72, 0x6b]
 
 f = open('test.mid','wb')
 f.truncate()
 
-f.write(midiHeader)
+
+
+# a = [0x00, 0x01, 0x00, 0x80, 0x4D, 0x54, 0x72, 0x6B]
+# for value in a:
+#     v = bytearray(1)# buffer
+#     struct.pack_into('B', v, 0, value)
+# 
+# file.write(v)
+
+f.write(bytearray(midiHeader))
+f.write(struct.pack('>I',track_length))
+
+for x in range(len(lst_note)):
+    track_buffer= bytearray(4)
+    struct.pack_into('>4B',track_buffer,0,lst_note[x][0],lst_note[x][1],lst_note[x][2],lst_note[x][3])
+    f.write(track_buffer)
+f.write(struct.pack('>2I',0x00FF,0x2F00))
 f.close()
-
-
-
-
-
-
-
-    
-
-#Fonction MAIN
-#On appel la fonction musique pour creer le tableau
-#on cree un buffer
-#On loop dans le tableau cree par musique pour pack les notes dans le buffer
-#On read le file
         
 
 
