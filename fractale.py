@@ -34,7 +34,7 @@ def _genere_points(p1, p2, n):
     #a faire un fractal de koch [p1--p3--p4--p5--p2} OU [A--C--D--E--B}
     p3 = _fraction_distance(p1, p2, 1/4)    #point C (ou p3) est sur la la droite AB
     p4 = _fraction_distance(p1, p2, 2/4)    #point D (ou p5) est sur la la droite AB
-    p4[1] = trunc(48/(2**n))                        #ajuste la hauteur de D selon trunct
+    p4[1] = trunc(p4[1] + 48/(2**n))                        #ajuste la hauteur de D selon trunct
     p5 = _fraction_distance(p1, p2, 3/4)    #point E (ou p5) est sur la la droite AB
     return [p1, p3, p4, p5, p2]
 
@@ -55,10 +55,14 @@ def musique(A, B, niveau, niveauMax):
 #Ecriture du hearder dans le fichier midi
 
 
-a = [0, 0]
-b = [77760, 0]
+a = [0, 36]
+b = [77760, 36]
 
 koch_values = musique(a, b, 0, 5)
+
+print(_fraction_distance(a, b, 1/2))
+print(koch_values)
+
 
 lst_note = []
 
@@ -100,6 +104,3 @@ for x in range(len(lst_note)):
     f.write(track_buffer)
 f.write(struct.pack('>2I',0x00FF,0x2F00))
 f.close()
-        
-
-
