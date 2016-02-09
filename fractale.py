@@ -102,5 +102,5 @@ for x in range(len(lst_note)):
     track_buffer= bytearray(4)
     struct.pack_into('>4B',track_buffer,0,lst_note[x][0],lst_note[x][1],lst_note[x][2],lst_note[x][3])
     f.write(track_buffer)
-f.write(struct.pack('>2I',0x00FF,0x2F00))
+f.write(struct.pack('>2h',0x00FF,0x2F00))
 f.close()
