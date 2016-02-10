@@ -3,12 +3,11 @@ __author__ = 'Jonathan Jackson & Antoine Proulx-Bégin'
 from math import trunc
 import struct
 
+
+# retourne distance horizontal entre p1 et p2
 def __dist(p1, p2):
-#Fonction _distX(x, y)
-# qui calcul la distance horizontale entre deux points de
-#   coordonees (x,y)
-#RETOURNE un nombre
     return (p2[0] - p1[0])
+
 
 def __fraction_distance(p1, p2, fraction):
     #Fonction qui retourne les coordonnees d'un point se trouvant a une
@@ -29,20 +28,20 @@ def __genere_points(p1, p2, n):
     return [p1, p3, p4, p5, p2]
  
 def __musique(A, B, niveau, niveauMax):
-    n = niveau
-    
-    next_points = __genere_points(A, B, n)
+  
+    next_points = __genere_points(A, B, niveau)
     if niveau == niveauMax:
         return [round(A[1]), (round(__dist(A, B)))] #on retourne la hauteur de A et la dist AB
     else:
-        n += 1
-        return [] + __musique(next_points[0], next_points[1], n, niveauMax)+\
-               __musique(next_points[1], next_points[2], n, niveauMax) +\
-               __musique(next_points[2], next_points[3], n, niveauMax) +\
-               __musique(next_points[3], next_points[4], n, niveauMax)
+        return [] + __musique(next_points[0], next_points[1], niveau+1, niveauMax)+\
+               __musique(next_points[1], next_points[2], niveau+1, niveauMax) +\
+               __musique(next_points[2], next_points[3], niveau+1, niveauMax) +\
+               __musique(next_points[3], next_points[4], niveau+1, niveauMax)
 
 def __generer_midi(koch_values):
-
+    # Genere le fichier les données du fichier midi
+    # Ecrit les donnes dans un fichier
+    
     lst_note = []
     channel = 0x90
     volume = 0x60
@@ -66,9 +65,9 @@ def __generer_midi(koch_values):
             
         lst_note.append([encoding_time,koch_values[2*x+1],channel,koch_values[2*x],volume])
         
-    #Section G du track header :
     #nb de note x 5 pour le nombre de byte + 4 byte de la section F 
     track_length = len(lst_note)*5 + 4
+    
     
     midiHeader =[0x4d, 0x54,0x68, 0x64 ,0x00, 0x00, 0x00,0x06, 0x00,
                 0x00, 0x00, 0x01, 0x00, 0x80, 0x4d, 0x54, 0x72, 0x6b]
