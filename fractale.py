@@ -68,24 +68,33 @@ def __generer_midi(koch_values):
     #nb de note x 5 pour le nombre de byte + 4 byte de la section F 
     track_length = len(lst_note)*5 + 4
     
-    
-    midiHeader =[0x4d, 0x54,0x68, 0x64 ,0x00, 0x00, 0x00,0x06, 0x00,
+    #midi Header
+    midiHeader = [0x4d, 0x54,0x68, 0x64 ,0x00, 0x00, 0x00,0x06, 0x00,
                 0x00, 0x00, 0x01, 0x00, 0x80, 0x4d, 0x54, 0x72, 0x6b]
     
     f = open('musique.mid','wb')
     f.truncate()
     
-    f.write(bytearray(midiHeader))
-    f.write(struct.pack('>I',track_length))
+    for x in range(len(midiHeader)):
+        buffer_head = bytearray(1)
+        struct.pack_into('>B',buffer_head,0,midiHeader[x])
+        f.write(buffer_head)
+        
+    buffer_length = bytearray(4)
+    struct.pack_into('>I',buffer_length,0,track_length)
+    f.write(buffer_length)
     
+    #track data
     for x in range(len(lst_note)):
         track_buffer = bytearray(5)
         struct.pack_into('>5B',track_buffer,0,lst_note[x][0],lst_note[x][1],
                          lst_note[x][2],lst_note[x][3],lst_note[x][4])
         f.write(track_buffer)
     
-    #indique la fin de la track
-    f.write(struct.pack('>2h',0x00FF,0x2F00))
+    #track footer
+    buffer_end = bytearray(4)
+    struct.pack_into('>2h',buffer_end,0,0x00FF,0x2F00)
+    f.write(buffer_end)
     f.close()
     
 a = [0, 36]
